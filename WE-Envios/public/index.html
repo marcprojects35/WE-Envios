@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>WE — WhatsApp Envios</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:         #0b0e1a;
+  --sidebar:    #0f1220;
+  --surface:    #141728;
+  --surface2:   #1a1e30;
+  --glass:      rgba(255,255,255,.03);
+  --border:     rgba(255,255,255,.06);
+  --border2:    rgba(255,255,255,.11);
+  --green:      #22d47a;
+  --green-dim:  #18a85e;
+  --green-glow: rgba(34,212,122,.18);
+  --green-bg:   rgba(34,212,122,.08);
+  --blue:       #5b8af5;
+  --blue-bg:    rgba(91,138,245,.1);
+  --red:        #f87171;
+  --red-bg:     rgba(248,113,113,.1);
+  --yellow:     #fbbf24;
+  --yellow-bg:  rgba(251,191,36,.1);
+  --text:       #e8eaff;
+  --text2:      rgba(232,234,255,.65);
+  --text3:      rgba(232,234,255,.38);
+  --text4:      rgba(232,234,255,.2);
+  --shadow:     0 1px 3px rgba(0,0,0,.35);
+  --shadow-md:  0 4px 20px rgba(0,0,0,.45);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,.55);
+  --radius:     12px;
+  --radius-sm:  8px;
+  --sidebar-w:  232px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  font-size:13px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;
+  height:100vh;
+  border-right:1px solid var(--border);
+  overflow:hidden;
+}
+.sidebar-logo{
+  padding:22px 18px 20px;
+  border-bottom:1px solid var(--border);
+}
+.logo-mark{display:flex;align-items:center;gap:12px}
+.logo-icon{
+  width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(135deg,var(--green),var(--green-dim));
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 0 22px var(--green-glow),0 2px 8px rgba(34,212,122,.25);
+}
+.logo-icon svg{color:#fff;width:20px;height:20px}
+.logo-text{color:var(--text);font-size:15px;font-weight:700;letter-spacing:-.4px}
+.logo-sub{color:var(--text4);font-size:10px;letter-spacing:.8px;text-transform:uppercase;margin-top:1px}
+
+.sidebar-section{
+  padding:20px 18px 6px;
+  font-size:9px;font-weight:700;
+  color:var(--text4);letter-spacing:1.8px;text-transform:uppercase;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:9px;margin:1px 8px;
+  color:var(--text3);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .18s ease;user-select:none;
+  position:relative;
+}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.6;transition:opacity .18s}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text2)}
+.nav-item:hover svg{opacity:.85}
+.nav-item.active{background:var(--green-bg);color:var(--green)}
+.nav-item.active svg{opacity:1;filter:drop-shadow(0 0 4px rgba(34,212,122,.5))}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:55%;background:var(--green);border-radius:0 3px 3px 0;
+  box-shadow:0 0 8px var(--green);
+}
+.nav-badge{
+  margin-left:auto;background:var(--green);color:#fff;
+  font-size:9.5px;font-weight:700;padding:0 7px;border-radius:999px;
+  min-width:20px;text-align:center;line-height:18px;height:18px;
+}
+.sidebar-spacer{flex:1}
+.sidebar-bottom{padding:14px 12px;border-top:1px solid var(--border)}
+.conn-card{
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:10px;padding:11px 13px;
+}
+.conn-label{font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;margin-bottom:7px}
+.conn-status{display:flex;align-items:center;gap:8px}
+.conn-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,.15);
+  transition:all .4s ease;flex-shrink:0;
+}
+.conn-txt{font-size:12px;color:var(--text3);font-weight:500}
+.connected .conn-dot{background:var(--green);box-shadow:0 0 12px rgba(34,212,122,.9),0 0 4px rgba(34,212,122,.5)}
+.connected .conn-txt{color:var(--green)}
+.qr-state .conn-dot{background:var(--yellow);box-shadow:0 0 12px rgba(251,191,36,.9);animation:blink .9s infinite}
+.qr-state .conn-txt{color:var(--yellow)}
+.disconnected .conn-dot{background:var(--red)}
+.disconnected .conn-txt{color:var(--red);opacity:.8}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;height:100vh}
+
+/* ── Topbar ── */
+.topbar{
+  height:56px;flex-shrink:0;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;gap:16px;
+}
+.topbar-title{font-size:14px;font-weight:600;color:var(--text);flex:1}
+.topbar-meta{font-size:12px;color:var(--text3)}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:var(--radius-sm);border:none;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  font-size:12px;font-weight:500;transition:all .18s ease;
+  white-space:nowrap;line-height:1;
+}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.btn-primary{
+  background:var(--green);color:#fff;
+  box-shadow:0 2px 10px rgba(34,212,122,.3);
+}
+.btn-primary:hover{
+  background:#27e082;
+  box-shadow:0 4px 16px rgba(34,212,122,.4);
+  transform:translateY(-1px);
+}
+.btn-outline{
+  background:rgba(255,255,255,.05);color:var(--text2);
+  border:1px solid var(--border2);
+}
+.btn-outline:hover{background:rgba(255,255,255,.08);color:var(--text);border-color:rgba(255,255,255,.18)}
+.btn-danger{
+  background:rgba(248,113,113,.08);color:var(--red);
+  border:1px solid rgba(248,113,113,.2);
+}
+.btn-danger:hover{background:rgba(248,113,113,.15);border-color:rgba(248,113,113,.35)}
+.btn:disabled{opacity:.3;cursor:not-allowed;pointer-events:none;transform:none!important}
+.btn-sm{padding:5px 11px;font-size:11.5px}
+.btn-sm svg{width:13px;height:13px}
+
+/* ── Content grid ── */
+.content{flex:1;display:grid;grid-template-columns:1fr 340px;overflow:hidden}
+
+/* ── Left col ── */
+.left-col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+
+/* ── Stats row ── */
+.stats-row{
+  display:flex;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+}
+.stat-cell{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:13px 8px;border-right:1px solid var(--border);
+  transition:background .2s;
+}
+.stat-cell:last-child{border-right:none}
+.stat-cell:hover{background:rgba(255,255,255,.025)}
+.stat-val{font-size:22px;font-weight:700;line-height:1;letter-spacing:-.5px;color:var(--text)}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+.s-sent .stat-val{color:var(--green)}
+.s-error .stat-val{color:var(--red)}
+.s-pending .stat-val{color:var(--blue)}
+
+/* ── Upload section ── */
+.upload-section{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+}
+.drop-zone{
+  border:1.5px dashed var(--border2);border-radius:var(--radius);
+  padding:13px;text-align:center;cursor:pointer;
+  transition:all .2s ease;color:var(--text3);font-size:12px;
+  background:var(--glass);display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.drop-zone svg{width:20px;height:20px;margin-bottom:2px;opacity:.5;transition:opacity .2s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.drop-zone:hover svg,.drop-zone.drag svg{opacity:1}
+.drop-zone strong{color:var(--text2);font-weight:600}
+#file-in{display:none}
+.add-row{display:flex;gap:7px;margin-top:10px}
+.field{
+  flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:8px 12px;
+  color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px;
+  outline:none;transition:all .18s;
+}
+.field:focus{border-color:var(--green);background:rgba(34,212,122,.05);box-shadow:0 0 0 3px rgba(34,212,122,.1)}
+.field::placeholder{color:var(--text4)}
+
+/* ── Search ── */
+.search-bar{
+  padding:9px 18px;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+  display:flex;align-items:center;gap:9px;
+}
+.search-bar svg{color:var(--text4);width:14px;height:14px;flex-shrink:0}
+.search-field{flex:1;background:transparent;border:none;outline:none;font-family:'Inter',sans-serif;font-size:13px;color:var(--text)}
+.search-field::placeholder{color:var(--text4)}
+
+/* ── Contact list ── */
+#contact-list{flex:1;overflow-y:auto;background:var(--bg)}
+#contact-list::-webkit-scrollbar{width:3px}
+#contact-list::-webkit-scrollbar-track{background:transparent}
+#contact-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.c-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 18px;border-bottom:1px solid var(--border);
+  transition:background .12s;
+}
+.c-row:hover{background:rgba(255,255,255,.025)}
+.c-av{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;
+}
+.av-0{background:linear-gradient(135deg,#34d399,#059669)}
+.av-1{background:linear-gradient(135deg,#60a5fa,#2563eb)}
+.av-2{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
+.av-3{background:linear-gradient(135deg,#f472b6,#db2777)}
+.av-4{background:linear-gradient(135deg,#fb923c,#ea580c)}
+.av-5{background:linear-gradient(135deg,#38bdf8,#0284c7)}
+.c-info{flex:1;min-width:0}
+.c-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.c-num{font-size:11px;color:var(--text3);margin-top:1px}
+.c-badge{
+  font-size:10px;font-weight:600;padding:3px 9px;
+  border-radius:999px;flex-shrink:0;letter-spacing:.2px;
+}
+.b-pending{background:var(--blue-bg);color:var(--blue)}
+.b-sent{background:var(--green-bg);color:var(--green)}
+.b-error{background:var(--red-bg);color:var(--red)}
+.c-del{
+  background:none;border:none;color:var(--text4);
+  cursor:pointer;padding:4px;border-radius:6px;
+  transition:all .15s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.c-del:hover{color:var(--red);background:var(--red-bg)}
+.c-del svg{width:14px;height:14px}
+
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:44px 20px;color:var(--text3);font-size:12.5px;gap:10px;text-align:center;
+}
+.empty-state svg{width:44px;height:44px;opacity:.2;color:var(--text)}
+.empty-state .ei{font-size:36px;opacity:.25}
+
+/* ── Progress ── */
+.prog-section{
+  padding:10px 18px;border-top:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+}
+.prog-track{background:rgba(255,255,255,.06);border-radius:999px;height:4px;overflow:hidden}
+.prog-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--green),#4ade80);
+  transition:width .5s ease;border-radius:999px;
+  box-shadow:0 0 8px rgba(34,212,122,.5);
+}
+.prog-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:10.5px;color:var(--text3)}
+
+/* ── Bottom pane ── */
+.bottom-pane{
+  flex-shrink:0;height:260px;
+  border-top:1px solid var(--border);
+  background:var(--surface);display:flex;flex-direction:column;
+}
+.tabs-bar{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--sidebar)}
+.tab-btn{
+  padding:11px 18px;font-size:12px;font-weight:500;
+  color:var(--text3);border-bottom:2px solid transparent;
+  cursor:pointer;transition:all .15s;user-select:none;
+  display:flex;align-items:center;gap:7px;
+}
+.tab-btn svg{width:14px;height:14px;opacity:.7}
+.tab-btn:hover{color:var(--text2)}
+.tab-btn.on{color:var(--green);border-bottom-color:var(--green)}
+.tab-btn.on svg{opacity:1;filter:drop-shadow(0 0 3px rgba(34,212,122,.5))}
+.tc{display:none;flex:1;overflow:hidden;flex-direction:column}
+.tc.on{display:flex}
+
+/* Compose */
+.compose-body{flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.msg-field{
+  flex:1;resize:none;
+  background:rgba(255,255,255,.04);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:11px 14px;
+  color:var(--text);font-family:'Inter',sans-serif;
+  font-size:13px;line-height:1.6;outline:none;transition:all .18s;min-height:0;
+}
+.msg-field:focus{border-color:var(--green);background:rgba(34,212,122,.04);box-shadow:0 0 0 3px rgba(34,212,122,.08)}
+.msg-field::placeholder{color:var(--text4)}
+.msg-hint{font-size:11px;color:var(--text3)}
+.msg-hint span{color:var(--green);font-weight:600;background:var(--green-bg);padding:1px 6px;border-radius:5px}
+.compose-footer{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 18px;border-top:1px solid var(--border);
+  flex-shrink:0;background:rgba(0,0,0,.12);
+}
+.delay-wrap{display:flex;align-items:center;gap:9px;flex:1}
+.delay-lbl{font-size:11px;color:var(--text3);white-space:nowrap;font-weight:500}
+input[type=range]{
+  flex:1;cursor:pointer;height:3px;
+  -webkit-appearance:none;appearance:none;
+  background:rgba(255,255,255,.1);border-radius:999px;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 8px rgba(34,212,122,.5);cursor:pointer;
+}
+.delay-val{font-size:12px;color:var(--text);font-weight:600;min-width:36px;text-align:right}
+.send-btns{display:flex;gap:7px;flex-shrink:0}
+
+/* Log tab */
+.log-body{flex:1;overflow-y:auto}
+.log-body::-webkit-scrollbar{width:3px}
+.log-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.log-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 18px;border-bottom:1px solid var(--border);font-size:12px;
+  transition:background .1s;
+}
+.log-row:hover{background:rgba(255,255,255,.025)}
+.log-ico{flex-shrink:0;display:flex;align-items:center}
+.log-ico svg{width:15px;height:15px}
+.log-name{flex:1;font-weight:500;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2)}
+.log-time{color:var(--text3);font-size:10.5px;flex-shrink:0}
+
+/* ── Right col ── */
+.right-col{display:flex;flex-direction:column;overflow:hidden;background:var(--surface2)}
+.right-section{background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.section-head{
+  padding:13px 18px 12px;font-size:11.5px;font-weight:600;
+  color:var(--text2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.section-head svg{width:15px;height:15px;color:var(--text3)}
+
+/* QR */
+.qr-area{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:28px 24px;gap:14px;flex:1;
+}
+.qr-spinner{
+  width:48px;height:48px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.06);
+  border-top-color:var(--green);
+  animation:spin 1s linear infinite;
+  box-shadow:0 0 20px var(--green-glow);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.qr-frame{
+  border-radius:14px;border:1.5px solid var(--border2);
+  padding:6px;background:#fff;
+  box-shadow:var(--shadow-lg),0 0 40px rgba(34,212,122,.08);
+}
+.qr-frame img{width:175px;height:175px;display:block;border-radius:10px}
+.qr-label{font-size:12px;color:var(--text2);text-align:center;line-height:1.8;max-width:200px}
+.qr-label strong{color:var(--text);font-weight:600}
+.qr-connected{display:flex;flex-direction:column;align-items:center;gap:12px;padding:32px 24px}
+.qr-connected .check{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--green-bg);border:1.5px solid rgba(34,212,122,.25);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 28px var(--green-glow);
+}
+.qr-connected .check svg{width:26px;height:26px;color:var(--green)}
+.qr-connected .ok-txt{font-size:14px;font-weight:700;color:var(--green)}
+.qr-connected .ok-sub{font-size:12px;color:var(--text3);text-align:center;line-height:1.6}
+
+/* Tips */
+.tips{padding:14px 18px;flex:1;overflow-y:auto}
+.tip-item{
+  display:flex;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--border);
+  font-size:12px;color:var(--text2);line-height:1.6;
+}
+.tip-item:last-child{border-bottom:none}
+.tip-item svg{flex-shrink:0;width:15px;height:15px;margin-top:2px;color:var(--text3)}
+
+/* Badge pill */
+.badge-pill{
+  background:var(--green);color:#fff;font-size:9.5px;font-weight:700;
+  padding:0 6px;border-radius:999px;min-width:17px;text-align:center;
+  line-height:16px;height:16px;display:inline-block;
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:22px;right:22px;z-index:9999;
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border2);border-radius:10px;
+  padding:11px 16px;font-size:12.5px;font-weight:500;
+  opacity:0;transform:translateY(8px);
+  transition:all .25s ease;pointer-events:none;
+  max-width:320px;box-shadow:var(--shadow-lg);
+}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.ok{background:rgba(5,90,55,.92);border-color:rgba(34,212,122,.3);color:#6ee7b7}
+#toast.err{background:rgba(140,20,20,.92);border-color:rgba(248,113,113,.3);color:#fca5a5}
+#toast.warn{background:rgba(130,55,5,.92);border-color:rgba(251,191,36,.3);color:#fde68a}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">WE</div>
+        <div class="logo-sub">WhatsApp Envios</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">Menu</div>
+
+  <div class="nav-item active">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+    Envios em Massa
+  </div>
+  <div class="nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+    Contatos
+    <span class="nav-badge" id="nav-cnt">0</span>
+  </div>
+  <div class="nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    Histórico
+  </div>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="sidebar-bottom">
+    <div class="conn-card">
+      <div class="conn-label">Conexão WhatsApp</div>
+      <div class="conn-status disconnected" id="conn-status">
+        <div class="conn-dot"></div>
+        <span class="conn-txt" id="conn-txt">Desconectado</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <span class="topbar-title">Envio em Massa</span>
+    <span class="topbar-meta" id="topbar-meta">Nenhum contato carregado</span>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-outline btn-sm" id="btn-retry" onclick="resetErrors()" style="display:none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+        Reenviar erros
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="clearAll()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+        Limpar lista
+      </button>
+    </div>
+  </div>
+
+  <!-- Content grid -->
+  <div class="content">
+
+    <!-- ══ LEFT ══ -->
+    <div class="left-col">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-cell s-total">
+          <div class="stat-val" id="st-total">0</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+        <div class="stat-cell s-pending">
+          <div class="stat-val" id="st-pending">0</div>
+          <div class="stat-lbl">Pendentes</div>
+        </div>
+        <div class="stat-cell s-sent">
+          <div class="stat-val" id="st-sent">0</div>
+          <div class="stat-lbl">Enviados</div>
+        </div>
+        <div class="stat-cell s-error">
+          <div class="stat-val" id="st-error">0</div>
+          <div class="stat-lbl">Erros</div>
+        </div>
+      </div>
+
+      <!-- Upload + Add -->
+      <div class="upload-section">
+        <div class="drop-zone" id="drop" onclick="document.getElementById('file-in').click()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+          <div>Arraste ou clique para importar <strong>.xlsx / .csv</strong></div>
+          <div style="font-size:11px;opacity:.6">Coluna A = Nome &nbsp;|&nbsp; Coluna B = Número</div>
+        </div>
+        <input type="file" id="file-in" accept=".xlsx,.xls,.csv"/>
+        <div class="add-row">
+          <input class="field" id="in-name" placeholder="Nome do contato" style="max-width:150px"/>
+          <input class="field" id="in-num" placeholder="Número (ex: 5511987654321)"/>
+          <button class="btn btn-primary" onclick="addContact()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Adicionar
+          </button>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+        <input class="search-field" id="search" placeholder="Buscar por nome ou número..." oninput="renderList()"/>
+      </div>
+
+      <!-- Contact list -->
+      <div id="contact-list" onscroll="onScroll()">
+        <div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+          <div>Nenhum contato carregado</div>
+          <div style="font-size:11px;color:var(--text4)">Importe uma planilha ou adicione manualmente</div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="prog-section" id="prog-section" style="display:none">
+        <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="prog-meta">
+          <span id="prog-txt">Preparando...</span>
+          <span id="prog-pct">0%</span>
+        </div>
+      </div>
+
+    </div><!-- /left-col -->
+
+    <!-- ══ RIGHT ══ -->
+    <div class="right-col">
+
+      <!-- QR / Connection -->
+      <div class="right-section" style="flex:1;display:flex;flex-direction:column">
+        <div class="section-head">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18h3"/></svg>
+          Conexão WhatsApp
+        </div>
+        <div id="qr-area" class="qr-area">
+          <div class="qr-spinner"></div>
+          <div class="qr-label">Iniciando conexão...<br/>Aguarde o QR Code aparecer</div>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="right-section" style="flex:1;display:flex;flex-direction:column">
+        <div class="section-head">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
+          Dicas de Uso
+        </div>
+        <div class="tips">
+          <div class="tip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+            <span>Use <strong style="color:var(--green)">{nome}</strong> na mensagem para personalizar com o nome de cada contato</span>
+          </div>
+          <div class="tip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Intervalo recomendado: <strong>4–6 segundos</strong> entre envios para evitar bloqueios</span>
+          </div>
+          <div class="tip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75.125-.008-.875a1.125 1.125 0 011.125-1.125h9.75a1.125 1.125 0 011.125 1.125l.008.875m-15 0h15M6 18.375V5.625m0 0a1.125 1.125 0 011.125-1.125h9.75A1.125 1.125 0 0118 5.625v12.75"/></svg>
+            <span>Planilha: coluna A = Nome, coluna B = Número (com DDI, ex: 5511...)</span>
+          </div>
+          <div class="tip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+            <span>Contatos com erro podem ser reenviados clicando em <strong>Reenviar erros</strong></span>
+          </div>
+          <div class="tip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 2.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
+            <span>A sessão é salva automaticamente — sem precisar escanear novamente</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right-col -->
+
+  </div><!-- /content -->
+
+  <!-- ══ BOTTOM ══ -->
+  <div class="bottom-pane">
+    <div class="tabs-bar">
+      <div class="tab-btn on" id="tab-compose" onclick="showTab('compose')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+        Mensagem
+      </div>
+      <div class="tab-btn" id="tab-log" onclick="showTab('log')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+        Histórico de Envios
+        <span class="badge-pill" id="cnt-log" style="display:none">0</span>
+      </div>
+    </div>
+
+    <!-- Compose -->
+    <div class="tc on" id="tc-compose">
+      <div class="compose-body">
+        <textarea class="msg-field" id="msg" placeholder="Digite a mensagem que será enviada para todos os contatos..."></textarea>
+        <div class="msg-hint">Use <span>{nome}</span> para personalizar com o nome de cada destinatário</div>
+      </div>
+      <div class="compose-footer">
+        <div class="delay-wrap">
+          <span class="delay-lbl">Intervalo:</span>
+          <input type="range" id="delay" min="2000" max="15000" step="500" value="4000" oninput="onDelay(this.value)"/>
+          <span class="delay-val" id="delay-lbl">4.0s</span>
+        </div>
+        <div class="send-btns">
+          <button class="btn btn-outline" id="btn-pause" onclick="togglePause()" disabled></button>
+          <button class="btn btn-danger" id="btn-stop" onclick="stopSend()" disabled></button>
+          <button class="btn btn-primary" id="btn-send" onclick="startSend()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+            Iniciar Envio
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="tc" id="tc-log">
+      <div class="log-body" id="log-body">
+        <div class="empty-state" style="padding:24px">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:36px;height:36px"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+          <div>Nenhum envio realizado ainda</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /bottom-pane -->
+
+</div><!-- /main -->
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ── SVG icon snippets for dynamic content ────────────────────────────────────
+const ICO = {
+  pause: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5"/></svg>`,
+  play:  `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>`,
+  stop:  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z" clip-rule="evenodd"/></svg>`,
+  check: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`,
+  x:     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`,
+  users: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>`,
+  search:`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>`,
+};
+
+// Initialize dynamic buttons
+(function initBtns(){
+  document.getElementById('btn-pause').innerHTML = ICO.pause + ' Pausar';
+  document.getElementById('btn-stop').innerHTML  = ICO.stop  + ' Parar';
+})();
+
+let contacts = [];
+let logCount = 0;
+let progSent = 0, progTotal = 0;
+const PAGE = 60;
+let visibleEnd = PAGE;
+
+// ── WebSocket ──────────────────────────────────────────────────────────────────
+let ws, wsT;
+function connectWS() {
+  if (ws && ws.readyState < 2) return;
+  ws = new WebSocket(`ws://${location.host}`);
+  ws.onopen = () => clearTimeout(wsT);
+  ws.onmessage = ({data}) => { try { handle(JSON.parse(data)); } catch {} };
+  ws.onclose = () => { wsT = setTimeout(connectWS, 2000); };
+  ws.onerror = () => { try { ws.close(); } catch {} };
+}
+
+function handle(m) {
+  switch(m.type) {
+    case 'status':      setConn(m.status); break;
+    case 'qr':          m.qr ? showQR(m.qr) : showConnected(); break;
+    case 'contacts':    contacts = m.contacts||[]; visibleEnd=PAGE; renderList(); updateStats(); break;
+    case 'contact_added': contacts.push(m.contact); renderList(); updateStats(); break;
+    case 'contact_update':
+      if(m.index>=0 && m.index<contacts.length){ contacts[m.index]=m.contact; patchRow(m.index); updateStats(); } break;
+    case 'sending_start': progSent=0; progTotal=m.total; updProg(); setSendUI(true); showProg(true); break;
+    case 'sending_paused': setPauseBtn(m.paused); break;
+    case 'sending_done':
+    case 'sending_stopped':
+      setSendUI(false);
+      showProg(false);
+      progSent=m.sent||progSent; progTotal=m.total||progTotal; updProg();
+      updateStats();
+      if(m.type==='sending_done') toast(`Concluído — ${m.sent} enviados, ${m.errors} erros`, 'ok');
+      else toast('Envio interrompido pelo usuário','warn');
+      break;
+    case 'log':
+      addLog(m.entry);
+      if(m.entry.sent!==undefined){ progSent=m.entry.sent; progTotal=m.entry.total; updProg(); }
+      break;
+  }
+}
+
+// ── Connection status ──────────────────────────────────────────────────────────
+function setConn(s) {
+  const el = document.getElementById('conn-status');
+  el.className = 'conn-status ' + ({connected:'connected',qr:'qr-state',disconnected:'disconnected'}[s]||'disconnected');
+  document.getElementById('conn-txt').textContent =
+    ({connected:'Conectado',qr:'Aguardando QR Code',disconnected:'Desconectado'})[s]||s;
+}
+
+function showQR(src) {
+  document.getElementById('qr-area').innerHTML =
+    `<div class="qr-frame"><img src="${src}"/></div>
+     <div class="qr-label">Abra o <strong>WhatsApp</strong> no celular<br/>
+     Menu → <strong>Aparelhos Conectados</strong><br/>→ Conectar aparelho e escaneie</div>`;
+}
+
+function showConnected() {
+  document.getElementById('qr-area').innerHTML =
+    `<div class="qr-connected">
+       <div class="check">${ICO.check}</div>
+       <div class="ok-txt">WhatsApp Conectado</div>
+       <div class="ok-sub">Sessão ativa e pronta<br/>para enviar mensagens</div>
+     </div>`;
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────────────
+function updateStats() {
+  let p=0,s=0,e=0;
+  for(const c of contacts){
+    if(c.status==='pending') p++;
+    else if(c.status==='sent') s++;
+    else if(c.status==='error') e++;
+  }
+  document.getElementById('st-total').textContent = contacts.length;
+  document.getElementById('st-pending').textContent = p;
+  document.getElementById('st-sent').textContent = s;
+  document.getElementById('st-error').textContent = e;
+  document.getElementById('nav-cnt').textContent = contacts.length;
+  document.getElementById('btn-retry').style.display = e ? '' : 'none';
+  document.getElementById('topbar-meta').textContent =
+    contacts.length ? `${contacts.length} contatos · ${p} pendentes · ${s} enviados` : 'Nenhum contato carregado';
+}
+
+// ── Contact list ───────────────────────────────────────────────────────────────
+const avColors = ['av-0','av-1','av-2','av-3','av-4','av-5'];
+
+function getFiltered() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  if(!q) return contacts.map((c,i)=>[c,i]);
+  return contacts.map((c,i)=>[c,i]).filter(([c])=>(c.name||'').toLowerCase().includes(q)||c.number.includes(q));
+}
+
+function renderList() {
+  const filtered = getFiltered();
+  const el = document.getElementById('contact-list');
+  if(!filtered.length){
+    el.innerHTML = contacts.length
+      ? `<div class="empty-state">${ICO.search}<div>Nenhum resultado encontrado</div></div>`
+      : `<div class="empty-state">${ICO.users}<div>Nenhum contato carregado</div><div style="font-size:11px;color:var(--text4)">Importe uma planilha ou adicione manualmente</div></div>`;
+    return;
+  }
+  const slice = filtered.slice(0,visibleEnd);
+  const frag = document.createDocumentFragment();
+  slice.forEach(([c,i])=>{ const d=document.createElement('div'); d.className='c-row'; d.id=`ci-${i}`; d.innerHTML=rowHTML(c,i); frag.appendChild(d); });
+  if(filtered.length>visibleEnd){
+    const more=document.createElement('div');
+    more.className='empty-state';
+    more.style.padding='12px 20px';
+    more.innerHTML=`<div style="font-size:11px;color:var(--text4)">Exibindo ${visibleEnd} de ${filtered.length} — role para carregar mais</div>`;
+    frag.appendChild(more);
+  }
+  el.innerHTML='';
+  el.appendChild(frag);
+}
+
+function rowHTML(c,i){
+  const av = avColors[i % avColors.length];
+  const letter = (c.name||'?')[0].toUpperCase();
+  const label = {pending:'Pendente',sent:'Enviado',error:'Erro'}[c.status]||c.status;
+  return `<div class="c-av ${av}">${letter}</div>
+    <div class="c-info">
+      <div class="c-name">${esc(c.name||'Sem nome')}</div>
+      <div class="c-num">${c.number}</div>
+    </div>
+    <span class="c-badge b-${c.status}">${label}</span>
+    <button class="c-del" onclick="removeContact(${i})" title="Remover">${ICO.x}</button>`;
+}
+
+function patchRow(i){
+  const el=document.getElementById(`ci-${i}`);
+  if(el) el.innerHTML=rowHTML(contacts[i],i);
+}
+
+function onScroll(){
+  const el=document.getElementById('contact-list');
+  if(el.scrollTop+el.clientHeight>=el.scrollHeight-80){
+    const prev=visibleEnd;
+    visibleEnd=Math.min(visibleEnd+PAGE,contacts.length+10);
+    if(visibleEnd!==prev) renderList();
+  }
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Contact actions ────────────────────────────────────────────────────────────
+async function addContact(){
+  const name=document.getElementById('in-name').value.trim();
+  const number=document.getElementById('in-num').value.trim();
+  if(!number) return toast('Informe o número do contato','err');
+  const r=await api('POST','/api/contacts/add',{name,number});
+  if(r.error) return toast(r.error,'err');
+  document.getElementById('in-name').value='';
+  document.getElementById('in-num').value='';
+  toast(`Contato adicionado — total: ${r.total}`,'ok');
+}
+
+async function removeContact(i){ await api('DELETE',`/api/contacts/${i}`); }
+
+async function clearAll(){
+  if(!confirm('Remover todos os contatos da lista? Esta ação não pode ser desfeita.')) return;
+  await api('DELETE','/api/contacts');
+}
+
+async function resetErrors(){
+  const r=await api('POST','/api/contacts/reset-errors');
+  toast(`${r.reset||0} contato(s) recolocado(s) na fila`,'ok');
+}
+
+// ── Upload ─────────────────────────────────────────────────────────────────────
+async function uploadFile(file){
+  if(!file) return;
+  toast('Processando planilha...','warn');
+  const buf=await file.arrayBuffer();
+  const r=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':file.type||'application/octet-stream'},body:buf}).then(x=>x.json()).catch(()=>({error:'Erro na leitura'}));
+  if(r.error) toast(r.error,'err');
+  else toast(`${r.count} contatos importados com sucesso`,'ok');
+}
+
+document.getElementById('file-in').addEventListener('change',e=>{ uploadFile(e.target.files[0]); e.target.value=''; });
+const dropEl=document.getElementById('drop');
+dropEl.addEventListener('dragover',e=>{ e.preventDefault(); dropEl.classList.add('drag'); });
+dropEl.addEventListener('dragleave',()=>dropEl.classList.remove('drag'));
+dropEl.addEventListener('drop',e=>{ e.preventDefault(); dropEl.classList.remove('drag'); uploadFile(e.dataTransfer.files[0]); });
+
+// ── Send ───────────────────────────────────────────────────────────────────────
+async function startSend(){
+  const message=document.getElementById('msg').value.trim();
+  if(!message) return toast('Digite a mensagem antes de iniciar o envio','err');
+  const delay=parseInt(document.getElementById('delay').value);
+  const r=await api('POST','/api/send',{message,delay});
+  if(r.error) return toast(r.error,'err');
+  toast(`Envio iniciado — ${r.total} contatos na fila`,'ok');
+}
+
+async function togglePause(){ const r=await api('POST','/api/send/pause'); if(r.error) toast(r.error,'err'); }
+async function stopSend(){ if(!confirm('Deseja interromper o envio em andamento?')) return; await api('POST','/api/send/stop'); }
+
+function setPauseBtn(paused){
+  document.getElementById('btn-pause').innerHTML = paused
+    ? ICO.play  + ' Retomar'
+    : ICO.pause + ' Pausar';
+}
+
+function setSendUI(active){
+  document.getElementById('btn-send').disabled=active;
+  document.getElementById('btn-pause').disabled=!active;
+  document.getElementById('btn-stop').disabled=!active;
+  if(!active) setPauseBtn(false);
+}
+
+function showProg(v){ document.getElementById('prog-section').style.display=v?'':'none'; }
+
+function updProg(){
+  const pct=progTotal>0?Math.round((progSent/progTotal)*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-txt').textContent=progTotal>0?`${progSent} de ${progTotal} mensagens enviadas`:'Preparando...';
+  document.getElementById('prog-pct').textContent=progTotal>0?pct+'%':'';
+}
+
+function onDelay(v){ document.getElementById('delay-lbl').textContent=(v/1000).toFixed(1)+'s'; }
+
+// ── Log ────────────────────────────────────────────────────────────────────────
+function addLog(e){
+  logCount++;
+  const cnt=document.getElementById('cnt-log');
+  cnt.textContent=logCount; cnt.style.display='';
+  const body=document.getElementById('log-body');
+  const empty=body.querySelector('.empty-state');
+  if(empty) empty.remove();
+  const div=document.createElement('div');
+  div.className='log-row';
+  const sentSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="#22d47a" style="width:15px;height:15px"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`;
+  const errSvg  = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="#f87171" style="width:15px;height:15px"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`;
+  div.innerHTML=`<span class="log-ico">${e.status==='sent'?sentSvg:errSvg}</span>
+    <span class="log-name">${esc(e.name||e.number)}</span>
+    <span class="log-time">${e.time}</span>`;
+  body.insertBefore(div,body.firstChild);
+  while(body.children.length>500) body.removeChild(body.lastChild);
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────────
+function showTab(n){
+  ['compose','log'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('on',t===n);
+    document.getElementById('tc-'+t).classList.toggle('on',t===n);
+  });
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+let toastT;
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=`show ${type}`;
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.className='',4000);
+}
+
+// ── API ────────────────────────────────────────────────────────────────────────
+async function api(method,url,body){
+  try{
+    const r=await fetch(url,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
+    return await r.json();
+  }catch(e){ return {error:e.message}; }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+(async()=>{
+  const data=await api('GET','/api/contacts');
+  if(Array.isArray(data)){ contacts=data; renderList(); updateStats(); }
+  const st=await api('GET','/api/status');
+  if(st.status) setConn(st.status);
+  if(st.sending){ progSent=st.sent||0; progTotal=st.total||0; updProg(); setSendUI(true); showProg(true); }
+  connectWS();
+})();
+</script>
+</body>
+</html>
