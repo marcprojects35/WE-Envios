@@ -704,7 +704,8 @@ let visibleEnd = PAGE;
 let ws, wsT;
 function connectWS() {
   if (ws && ws.readyState < 2) return;
-  ws = new WebSocket(`ws://${location.host}`);
+  const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${wsProto}//${location.host}`);
   ws.onopen = () => clearTimeout(wsT);
   ws.onmessage = ({data}) => { try { handle(JSON.parse(data)); } catch {} };
   ws.onclose = () => { wsT = setTimeout(connectWS, 2000); };
