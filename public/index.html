@@ -699,6 +699,31 @@ let logCount = 0;
 let progSent = 0, progTotal = 0;
 const PAGE = 60;
 let visibleEnd = PAGE;
+let connStatus = 'disconnected';
+let qrPollTimer = null;
+
+// ── Polling HTTP para QR/status (garante funcionamento mesmo sem WebSocket) ───
+function startQRPoll() {
+  if (qrPollTimer) return;
+  qrPollTimer = setInterval(async () => {
+    if (connStatus === 'connected') { stopQRPoll(); return; }
+    try {
+      const r = await fetch('/api/qr');
+      const d = await r.json();
+      if (d.status && d.status !== connStatus) {
+        connStatus = d.status;
+        setConn(connStatus);
+      }
+      if (d.qr) { showQR(d.qr); stopQRPoll(); }
+      else if (d.status === 'connected') { showConnected(); stopQRPoll(); }
+    } catch {}
+  }, 3000);
+}
+
+function stopQRPoll() {
+  clearInterval(qrPollTimer);
+  qrPollTimer = null;
+}
 
 // ── WebSocket ──────────────────────────────────────────────────────────────────
 let ws, wsT;
@@ -714,8 +739,15 @@ function connectWS() {
 
 function handle(m) {
   switch(m.type) {
-    case 'status':      setConn(m.status); break;
-    case 'qr':          m.qr ? showQR(m.qr) : showConnected(); break;
+    case 'status':
+      connStatus = m.status;
+      setConn(m.status);
+      if (m.status === 'connected') stopQRPoll();
+      break;
+    case 'qr':
+      if (m.qr) { showQR(m.qr); stopQRPoll(); }
+      else showConnected();
+      break;
     case 'contacts':    contacts = m.contacts||[]; visibleEnd=PAGE; renderList(); updateStats(); break;
     case 'contact_added': contacts.push(m.contact); renderList(); updateStats(); break;
     case 'contact_update':
@@ -967,9 +999,12 @@ async function api(method,url,body){
   const data=await api('GET','/api/contacts');
   if(Array.isArray(data)){ contacts=data; renderList(); updateStats(); }
   const st=await api('GET','/api/status');
-  if(st.status) setConn(st.status);
+  if(st.status){ connStatus=st.status; setConn(st.status); }
+  if(st.qr) showQR(st.qr);
+  else if(st.status==='connected') showConnected();
   if(st.sending){ progSent=st.sent||0; progTotal=st.total||0; updProg(); setSendUI(true); showProg(true); }
   connectWS();
+  if(connStatus !== 'connected') startQRPoll();
 })();
 </script>
 </body>

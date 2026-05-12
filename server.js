@@ -214,7 +214,11 @@ async function runSendLoop(message, delayMs) {
 
 // ─── Rotas API ─────────────────────────────────────────────────────────────────
 app.get("/api/status", (req, res) =>
-  res.json({ status: connectionStatus, sending: sending.active, paused: sending.paused, sent: sending.sent, errors: sending.errors, total: sending.total })
+  res.json({ status: connectionStatus, qr: lastQR, sending: sending.active, paused: sending.paused, sent: sending.sent, errors: sending.errors, total: sending.total })
+);
+
+app.get("/api/qr", (req, res) =>
+  res.json({ status: connectionStatus, qr: lastQR })
 );
 
 app.get("/api/contacts", (req, res) => res.json(contacts));
