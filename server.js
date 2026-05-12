@@ -268,8 +268,9 @@ app.post("/api/send/stop", (req, res) => {
 });
 
 // ─── Start ─────────────────────────────────────────────────────────────────────
-server.listen(3000, () => {
-  console.log("✅ WE — WhatsApp Envios rodando em http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`✅ WE — WhatsApp Envios rodando em http://localhost:${PORT}`);
   connectToWhatsApp();
 });
 
