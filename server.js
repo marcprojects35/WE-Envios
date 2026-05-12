@@ -4,6 +4,7 @@ import makeWASocket, {
   fetchLatestBaileysVersion,
 } from "@whiskeysockets/baileys";
 import { Boom } from "@hapi/boom";
+import P from "pino";
 import express from "express";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
@@ -73,19 +74,34 @@ function getWaName(jid, fallback) {
   return c?.name || c?.notify || fallback || "";
 }
 
+const logger = P({ level: "silent" });
+
 // ─── Conexão WhatsApp ──────────────────────────────────────────────────────────
 async function connectToWhatsApp() {
   try {
     const { state, saveCreds } = await useMultiFileAuthState("auth_info");
-    const { version } = await fetchLatestBaileysVersion();
+
+    let version;
+    try {
+      const result = await Promise.race([
+        fetchLatestBaileysVersion(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 10000)),
+      ]);
+      version = result.version;
+    } catch {
+      version = [2, 3000, 1015901307];
+    }
 
     sock = makeWASocket({
       version,
       auth: state,
+      logger,
       printQRInTerminal: false,
       browser: ["WE Envios", "Chrome", "1.0.0"],
-      connectTimeoutMs: 30000,
+      connectTimeoutMs: 60000,
       keepAliveIntervalMs: 15000,
+      syncFullHistory: false,
+      generateHighQualityLinkPreview: false,
     });
 
     sock.ev.on("contacts.upsert", (list) => {
