@@ -25,6 +25,7 @@ app.use(express.static(join(__dirname, "public")));
 // ─── Estado global ─────────────────────────────────────────────────────────────
 let sock = null;
 let connectionStatus = "disconnected";
+let lastQR = null;
 let contacts = [];
 const waContacts = {};
 
@@ -47,6 +48,15 @@ function broadcast(data) {
     if (c.readyState === 1) try { c.send(msg); } catch {}
   });
 }
+
+wss.on("connection", (ws) => {
+  try {
+    ws.send(JSON.stringify({ type: "status", status: connectionStatus }));
+    if (connectionStatus === "qr" && lastQR) {
+      ws.send(JSON.stringify({ type: "qr", qr: lastQR }));
+    }
+  } catch {}
+});
 
 function normalizeNumber(raw) {
   let num = String(raw).replace(/\D/g, "");
@@ -115,18 +125,21 @@ async function connectToWhatsApp() {
       const { connection, lastDisconnect, qr } = update;
       if (qr) {
         try {
+          lastQR = await qrcode.toDataURL(qr);
           connectionStatus = "qr";
           broadcast({ type: "status", status: "qr" });
-          broadcast({ type: "qr", qr: await qrcode.toDataURL(qr) });
+          broadcast({ type: "qr", qr: lastQR });
         } catch {}
       }
       if (connection === "close") {
+        lastQR = null;
         connectionStatus = "disconnected";
         broadcast({ type: "status", status: "disconnected" });
         const code = new Boom(lastDisconnect?.error)?.output?.statusCode;
         if (code !== DisconnectReason.loggedOut) setTimeout(connectToWhatsApp, 3000);
       }
       if (connection === "open") {
+        lastQR = null;
         connectionStatus = "connected";
         broadcast({ type: "status", status: "connected" });
         broadcast({ type: "qr", qr: null });
