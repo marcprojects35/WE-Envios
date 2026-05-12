@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: we-envios
+    runtime: node
+    buildCommand: yarn
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
