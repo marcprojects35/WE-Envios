@@ -88,8 +88,10 @@ const logger = P({ level: "silent" });
 
 // ─── Conexão WhatsApp ──────────────────────────────────────────────────────────
 async function connectToWhatsApp() {
+  console.log("[WA] Iniciando conexão com WhatsApp...");
   try {
     const { state, saveCreds } = await useMultiFileAuthState("auth_info");
+    console.log("[WA] Auth state carregado");
 
     let version;
     try {
@@ -98,8 +100,10 @@ async function connectToWhatsApp() {
         new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 10000)),
       ]);
       version = result.version;
-    } catch {
+      console.log("[WA] Versão WA obtida:", version);
+    } catch (e) {
       version = [2, 3000, 1015901307];
+      console.log("[WA] Usando versão fallback:", version, "| motivo:", e.message);
     }
 
     sock = makeWASocket({
@@ -123,24 +127,30 @@ async function connectToWhatsApp() {
 
     sock.ev.on("connection.update", async (update) => {
       const { connection, lastDisconnect, qr } = update;
+      console.log("[WA] connection.update:", { connection, hasQR: !!qr });
       if (qr) {
         try {
           lastQR = await qrcode.toDataURL(qr);
           connectionStatus = "qr";
+          console.log("[WA] QR gerado e pronto para exibição");
           broadcast({ type: "status", status: "qr" });
           broadcast({ type: "qr", qr: lastQR });
-        } catch {}
+        } catch (e) {
+          console.error("[WA] Erro ao gerar QR:", e.message);
+        }
       }
       if (connection === "close") {
         lastQR = null;
         connectionStatus = "disconnected";
-        broadcast({ type: "status", status: "disconnected" });
         const code = new Boom(lastDisconnect?.error)?.output?.statusCode;
+        console.log("[WA] Conexão fechada, código:", code);
+        broadcast({ type: "status", status: "disconnected" });
         if (code !== DisconnectReason.loggedOut) setTimeout(connectToWhatsApp, 3000);
       }
       if (connection === "open") {
         lastQR = null;
         connectionStatus = "connected";
+        console.log("[WA] Conectado com sucesso!");
         broadcast({ type: "status", status: "connected" });
         broadcast({ type: "qr", qr: null });
       }
@@ -148,7 +158,7 @@ async function connectToWhatsApp() {
 
     sock.ev.on("creds.update", saveCreds);
   } catch (err) {
-    console.error("Erro ao conectar:", err.message);
+    console.error("[WA] ERRO ao conectar:", err.message, err.stack?.split("\n")[1] || "");
     setTimeout(connectToWhatsApp, 5000);
   }
 }
