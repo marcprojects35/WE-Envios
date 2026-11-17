@@ -1,5 +1,10 @@
 # WE-Envios
 
+[![CI](https://github.com/marcprojects35/WE-Envios/actions/workflows/ci.yml/badge.svg)](https://github.com/marcprojects35/WE-Envios/actions/workflows/ci.yml)
+![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat&logo=node.js&logoColor=white)
+![Render](https://img.shields.io/badge/deploy-Render-46E3B7?style=flat&logo=render&logoColor=white)
+![WhatsApp](https://img.shields.io/badge/WhatsApp-Baileys-25D366?style=flat&logo=whatsapp&logoColor=white)
+
 WhatsApp bulk messaging platform with a real-time web dashboard. Connect your WhatsApp account via QR code and send personalized messages to contact lists imported from spreadsheets.
 
 ---
